@@ -1,5 +1,4 @@
 # mcd_backup_restore_gitlab
-# mcd_backup_restore_gitlab
 # 1.crontab
 0 3 * * * "$(command -v bash)" -c 'pushd /opt/mcd && /bin/bash backup_gitlab.sh && popd'
 # 2.backup_gitlab.sh
