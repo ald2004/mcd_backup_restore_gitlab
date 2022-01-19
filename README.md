@@ -21,12 +21,15 @@ import traceback
 from logger import get_logger
 import sys
 import time
+import collections
 
 logger = get_logger()
 endpoint = 'http://oss-cn-beijing.aliyuncs.com'  # Suppose that your bucket is in the Hangzhou region.
 backpath = '/mnt/remote_disk/'
-auth = oss2.Auth('LTAI4FpnhtKcezBePcL2KMTu', 'ksVk0yBJ8KyyxcnmXuWdMbBtjDIOZt')
-bucket = oss2.Bucket(auth, endpoint, 'mcdgitlabbackup')
+auth = oss2.Auth('', '')
+bucket = oss2.Bucket(auth, endpoint, '')
+service = oss2.Service(auth, 'http://oss-cn-beijing.aliyuncs.com')
+thres_hold_total = 90 #90 GB
 
 
 def removeremotefile(gitlabbackupfilename):
@@ -55,7 +58,7 @@ def uploadbackup():
     try:
         for gitlabbackupfile in glob.glob(os.path.join(backpath, '*')):
             while 1:
-                if gitlabbackupfile.startswith('-') :
+                if gitlabbackupfile.startswith('-'):
                     logger.debug(f'waiting for dump file {gitlabbackupfile} complete sleep for 30s.')
                     time.sleep(30)
                 else:
@@ -80,10 +83,42 @@ def listbackups():
         os._exit(0)
 
 
+def getbuckettotalsize() -> int:
+    total_size = 0
+    for object_info in oss2.ObjectIterator(bucket):
+        total_size += abs(object_info.size)
+    return int(total_size / 1024 ** 3)
+
+
+def deletthefirstfile():
+    tmp_files = {}
+    for object_info in oss2.ObjectIterator(bucket):
+        if str(object_info.key).endswith('tar'):
+            tmp_files[str(object_info.key).split("_")[0]] = str(object_info.key)
+    od = collections.OrderedDict(sorted(tmp_files.items()))
+    filetobedeleted = od[next(iter(od))]
+    bucket.delete_object(filetobedeleted)
+    return filetobedeleted
+
+
+def keepbucketvolum():
+    running_count = 0
+    logger.debug(f"bucket now total size :{getbuckettotalsize()} GB")
+    while (getbuckettotalsize() > thres_hold_total):
+        if running_count > 99:
+            break
+        else:
+            running_count += 1
+        logger.debug(f"the file :{deletthefirstfile()} is deleted ...")
+        logger.debug(f"after delete bucket now total size :{getbuckettotalsize()} GB")
+        time.sleep(1)
+
+
 if __name__ == '__main__':
     logger.debug(f'files tobe uploaded to oss:\n\t{glob.glob(os.path.join(backpath, "*"))}')
-
+    keepbucketvolum()
     fire.Fire()
+
 ````
 # 4.restore.sh
 ``` bash
