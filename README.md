@@ -4,8 +4,8 @@
 # 2.backup_gitlab.sh
 ```python
 #!/bin/bash
-echo "$(date -Is) ssh v1i.cc \"docker exec -t gitlab gitlab-backup create\"" >> ./sshcommands.log
-ssh mcd.v1i.cc "docker exec -t gitlab gitlab-backup create"
+echo "$(date -Is) ssh xx.cc \"docker exec -t gitlab gitlab-backup create\"" >> ./sshcommands.log
+ssh xx.xx.cc "docker exec -t gitlab gitlab-backup create"
 /usr/bin/python3 mcd_oss.py uploadbackup >> ./sshcommands.log
 #sshfs xx.xx.cc:/data/docker-project/gitlab/gitlab/data/backups /mnt/remote_disk/
 ```
