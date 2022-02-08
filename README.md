@@ -7,6 +7,7 @@
 echo "$(date -Is) ssh v1i.cc \"docker exec -t gitlab gitlab-backup create\"" >> ./sshcommands.log
 ssh mcd.v1i.cc "docker exec -t gitlab gitlab-backup create"
 /usr/bin/python3 mcd_oss.py uploadbackup >> ./sshcommands.log
+#sshfs xx.xx.cc:/data/docker-project/gitlab/gitlab/data/backups /mnt/remote_disk/
 ```
 # 3.mcd_oss.py
 ```python
