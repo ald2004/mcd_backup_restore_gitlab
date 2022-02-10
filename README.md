@@ -11,6 +11,7 @@ ssh xx.xx.cc "docker exec -t gitlab gitlab-backup create"
 ```
 # 3.mcd_oss.py
 ```python
+
 # -*- coding: utf-8 -*-
 import time
 
@@ -117,8 +118,15 @@ def keepbucketvolum():
 
 if __name__ == '__main__':
     logger.debug(f'files tobe uploaded to oss:\n\t{glob.glob(os.path.join(backpath, "*"))}')
-    keepbucketvolum()
+    try:
+        keepbucketvolum()
+    except:
+        pass
     fire.Fire()
+    try:
+        keepbucketvolum()
+    except:
+        pass
 
 ````
 # 4.restore.sh
